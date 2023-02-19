@@ -1,0 +1,82 @@
+image: brentschuetze/comp2300-arch-test:latest
+
+variables:
+  GIT_DEPTH: 1
+
+stages:
+  - filecheck
+  - test
+
+lab-01:file:2_to_1_mux.dig:
+  tags:
+    - comp2300
+  stage: filecheck
+  script:
+    - /scripts/validate.py exists lab1/2_to_1_mux.dig
+
+lab-01:test:2_to_1_mux.dig:
+  tags:
+    - comp2300
+  stage: test
+  dependencies:
+    - lab-01:file:2_to_1_mux.dig
+  script:
+    - /scripts/test.py test lab1/2_to_1_mux.dig
+
+
+
+
+
+
+
+lab1:
+  tags:
+    - engn2219
+  stage: test
+  script:
+    - /scripts/test.py lab1/2_to_1_mux.dig --run-internal-tests
+    - /scripts/test.py lab1/shift.dig --run-internal-tests
+    - /scripts/test.py lab1/2_to_1_wide_mux.dig --run-internal-tests
+    - /scripts/test.py lab1/4_to_1_mux.dig --run-internal-tests
+    - /scripts/test.py lab1/4_to_1_wide_mux.dig --run-internal-tests
+    - /scripts/test.py --extension lab1/mux_emulate_xor.dig --run-internal-tests
+
+lab2:
+  tags:
+    - engn2219
+  stage: test
+  script:
+    - /scripts/test.py lab2/and.dig --tests /data/lab2/and.test.dig
+    - /scripts/test.py lab2/half-adder.dig --tests /data/lab2/half-adder.test.dig
+    - /scripts/test.py lab2/full-adder.dig --tests /data/lab2/full-adder.test.dig
+    - /scripts/test.py lab2/ripple-carry-adder.dig --tests /data/lab2/ripple-carry-adder.test.dig
+    - /scripts/test.py lab2/adder-subtracter.dig --tests /data/lab2/adder-subtracter.test.dig
+    - /scripts/test.py lab2/alu.dig --tests /data/lab2/alu.test.dig
+
+lab3:
+  tags:
+    - engn2219
+  stage: test
+  script:
+    - /scripts/test.py lab3/sr_latch.dig --tests /data/lab3/sr_latch.test.dig
+    - /scripts/test.py lab3/d_latch.dig --tests /data/lab3/d_latch.test.dig
+    - /scripts/test.py lab3/d_flipflop.dig --tests /data/lab3/d_flipflop.test.dig
+    - /scripts/test.py lab3/d_flipflop_with_en.dig --tests /data/lab3/d_flipflop_with_en.test.dig
+    - /scripts/test.py lab3/counter.dig --tests /data/lab3/counter.test.dig
+    - /scripts/test.py lab3/counter.dig --run-internal-tests
+    - /scripts/test.py lab3/reg_file.dig --tests /data/lab3/reg_file.test.dig
+
+lab4:
+  tags:
+    - engn2219
+  stage: test
+  script:
+    - /scripts/test.py lab4/calc.dig --run-internal-tests
+    - /scripts/test.py lab4/manual_cpu.dig --tests /data/lab4/manual_cpu.test.dig
+
+lab5:
+  tags:
+    - engn2219
+  stage: test
+  script:
+    - /scripts/test.py lab5/control_unit.dig --tests /data/lab5/control_unit.test.dig
