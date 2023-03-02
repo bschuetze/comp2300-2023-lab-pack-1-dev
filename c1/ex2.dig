@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>2</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Description</string>
+          <string>First input to ALU</string>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>A</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>16</int>
+        </entry>
+      </elementAttributes>
+      <pos x="140" y="60"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Description</string>
+          <string>Second input to ALU</string>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>B</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>16</int>
+        </entry>
+      </elementAttributes>
+      <pos x="140" y="160"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Description</string>
+          <string>Operation selection input</string>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>ALUOP</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>3</int>
+        </entry>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>bin</intFormat>
+        </entry>
+      </elementAttributes>
+      <pos x="140" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Description</string>
+          <string>The result of this ALU operation</string>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>RESULT</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>16</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Description</string>
+          <string>The flags associated with the result of this ALU operation
+
+0. Z (zero)
+1. N (negative)
+2. C (carry)
+3. V (overflow)</string>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>FLAG</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>bin</intFormat>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>1,1,1,1</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>0-3</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1020" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>RESULT</string>
+        </entry>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>ALUOP A B RESULT
+
+# Test small results
+loop(a, 1 &lt;&lt; 4)
+  loop(b, 1 &lt;&lt; 4)
+    (0b000) (a) (b) ((a + b) &amp; 0xFFFF)
+    (0b001) (a) (b) ((a - b) &amp; 0xFFFF)
+    (0b010) (a) (b) (a &amp; b)
+    (0b011) (a) (b) (a | b)
+    (0b100) (a) (b) (a ^ b)
+    (0b101) (a) (b) (~(a &amp; b))
+    (0b110) (a) (b) (~(a | b))
+    (0b111) (a) (b) (~(a ^ b))
+  end loop
+end loop
+
+
+# Test large results
+loop(i, 1000)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+
+    (0b000) (a) (b) ((a + b) &amp; 0xFFFF)
+    (0b001) (a) (b) ((a - b) &amp; 0xFFFF)
+    (0b010) (a) (b) (a &amp; b)
+    (0b011) (a) (b) (a | b)
+    (0b100) (a) (b) (a ^ b)
+    (0b101) (a) (b) (~(a &amp; b))
+    (0b110) (a) (b) (~(a | b))
+    (0b111) (a) (b) (~(a ^ b))
+end loop
+</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="-120" y="-60"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>Z</string>
+        </entry>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>ALUOP A B Z
+
+declare Z = FLAG &amp; 0b1;
+
+# Test all zero cases
+0b000 0 0 1
+0b001 0 0 1
+0b010 0 0 1
+0b011 0 0 1
+0b100 0 0 1
+0b101 0 0 0
+0b110 0 0 0
+0b111 0 0 0
+
+# Test 1 + (-1) = 0
+0b000 1 0xFFFF 1
+
+# Test with a single bit set in A
+loop(s, 16)
+    let a = 1 &lt;&lt; s;
+
+    0b000 (a) 0 (a = 0)
+    0b001 (a) 0 (a = 0)
+    0b010 (a) 0 1
+    0b011 (a) 0 (a = 0)
+    0b100 (a) 0 (a = 0)
+    0b101 (a) 0 0
+    0b110 (a) 0 0
+    0b111 (a) 0 (a = 0)
+end loop
+
+# Test random inputs
+loop(i, 200)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+
+    0b000 (a) (b) (((a + b) &amp; 0xFFFF) = 0)
+    0b001 (a) (b) (((a - b) &amp; 0xFFFF) = 0)
+    0b010 (a) (b) ((a &amp; b) = 0)
+    0b011 (a) (b) ((a | b) = 0)
+    0b100 (a) (b) ((a ^ b) = 0)
+    0b101 (a) (b) (((~(a &amp; b)) &amp; 0xFFFF) = 0)
+    0b110 (a) (b) (((~(a | b)) &amp; 0xFFFF) = 0)
+    0b111 (a) (b) (((~(a ^ b)) &amp; 0xFFFF) = 0)
+end loop</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="-120" y="40"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>N</string>
+        </entry>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>ALUOP A B N
+
+declare N = (FLAG &gt;&gt; 1) &amp; 0b1;
+
+# Test all zero cases
+0b000 0 0 0
+0b001 0 0 0
+0b010 0 0 0
+0b011 0 0 0
+0b100 0 0 0
+0b101 0 0 1
+0b110 0 0 1
+0b111 0 0 1
+
+# Test 1 + (-1) = 0
+0b000 1 0xFFFF 0
+
+# Test with a single bit set in A
+loop(s, 16)
+    let a = 1 &lt;&lt; s;
+
+    0b000 (a) 0 ((a &gt;&gt; 15) &amp; 0b1)
+    0b001 (a) 0 ((a &gt;&gt; 15) &amp; 0b1)
+    0b010 (a) 0 0
+    0b011 (a) 0 ((a &gt;&gt; 15) &amp; 0b1)
+    0b100 (a) 0 ((a &gt;&gt; 15) &amp; 0b1)
+    0b101 (a) 0 1
+    0b110 (a) 0 ((~(a &gt;&gt; 15)) &amp; 0b1)
+    0b111 (a) 0 ((~(a &gt;&gt; 15)) &amp; 0b1)
+end loop
+
+# Test random inputs
+loop(i, 200)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+
+    0b000 (a) (b) (((a + b) &gt;&gt; 15) &amp; 0b1)
+    0b001 (a) (b) (((a - b) &gt;&gt; 15) &amp; 0b1)
+    0b010 (a) (b) (((a &amp; b) &gt;&gt; 15) &amp; 0b1)
+    0b011 (a) (b) (((a | b) &gt;&gt; 15) &amp; 0b1)
+    0b100 (a) (b) (((a ^ b) &gt;&gt; 15) &amp; 0b1)
+    0b101 (a) (b) (((~(a &amp; b)) &gt;&gt; 15) &amp; 0b1)
+    0b110 (a) (b) (((~(a | b)) &gt;&gt; 15) &amp; 0b1)
+    0b111 (a) (b) (((~(a ^ b)) &gt;&gt; 15) &amp; 0b1)
+end loop
+</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="-120" y="140"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>C</string>
+        </entry>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>ALUOP A B C
+
+declare C = (FLAG &gt;&gt; 2) &amp; 0b1;
+
+# Test 0 + 0
+0b000 0 0 0
+
+# (0 - 0) is implemented as 0 + (0xFFFF + 1), so a carry is expected
+0b001 0 0 1
+
+# Carry should propagate all the way from the first bit if necessary
+0b000 1 0xFFFF 1
+
+# Test with a single bit set in A
+loop(s, 16)
+    let a = 1 &lt;&lt; s;
+
+    0b000 (a) 0 0
+    0b001 (a) 0 1  # (a - 0) is implemented as (a + 0xFFFF + 1) in the adder, so a carry is always expected
+    0b010 (a) 0 0  # carry is defined as 0 for AND
+    0b011 (a) 0 0  # carry is defined as 0 for OR
+    0b100 (a) 0 0  # carry is defined as 0 for XOR
+    0b101 (a) 0 0  # carry is defined as 0 for NAND
+    0b110 (a) 0 0  # carry is defined as 0 for NOR
+    0b111 (a) 0 0  # carry is defined as 0 for XNOR
+end loop
+
+# Adding 15 bit values should never carry
+loop(i, 100)
+    0b000 (random(1 &lt;&lt; 15)) (random(1 &lt;&lt; 15)) 0
+end loop
+
+# Test random inputs
+loop(i, 200)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+
+    0b000 (a) (b) (((a + b) &gt;&gt; 16) &amp; 0b1)
+    0b001 (a) (b) (~((a - b) &gt;&gt; 16) &amp; 0b1)
+end loop
+
+# AND, OR, XOR, and their N versions never set carry
+loop(i, 100)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+    0b010 (a) (b) 0
+    0b011 (a) (b) 0
+    0b100 (a) (b) 0
+    0b101 (a) (b) 0
+    0b110 (a) (b) 0
+    0b111 (a) (b) 0
+end loop
+</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="-120" y="240"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>V</string>
+        </entry>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>ALUOP A B V
+
+declare V = (FLAG &gt;&gt; 3) &amp; 0b1;
+
+# Test zero cases for + / -
+0b000 0 0 0
+0b001 0 0 0
+
+# 1 + (-1) = 0  ; different input signs = no overflow here!
+0b000 1 0xFFFF 0
+
+# 3 - 5 = 3 + (-5) = -2  ; subtraction inverts the second operand sign
+0b001 3 5 0
+
+# Some edge cases when subtracting 0x8000
+0b001 0x8000 0x8000 0
+0b001 0xFFFF 0x8000 0
+0b001 0x7FFF 0x8000 1
+
+# Test with a single bit set in A
+loop(s, 16)
+    let a = 1 &lt;&lt; s;
+
+    0b000 (a) 0 0
+    0b001 (a) 0 0
+    0b010 (a) 0 0  # overflow is defined as 0 for AND
+    0b011 (a) 0 0  # overflow is defined as 0 for OR
+    0b100 (a) 0 0  # overflow is defined as 0 for XOR
+    0b101 (a) 0 0  # overflow is defined as 0 for NAND
+    0b110 (a) 0 0  # overflow is defined as 0 for NOR
+    0b111 (a) 0 0  # overflow is defined as 0 for XNOR
+end loop
+
+# Test random inputs
+loop(i, 200)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+
+    0b000 (a) (b) (((~(a ^ b) &amp; (a ^ (a + b))) &gt;&gt; 15) &amp; 0b1)
+    0b001 (a) (b) (((~(a ^ -b) &amp; (a ^ (a - b))) &gt;&gt; 15) &amp; 0b1)
+end loop
+
+# AND, OR, XOR, and their N versions never set overflow
+loop(i, 100)
+    let a = random(1 &lt;&lt; 16);
+    let b = random(1 &lt;&lt; 16);
+    0b010 (a) (b) 0
+    0b011 (a) (b) 0
+    0b100 (a) (b) 0
+    0b101 (a) (b) 0
+    0b110 (a) (b) 0
+    0b111 (a) (b) 0
+end loop
+</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="-120" y="340"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="1040" y="260"/>
+      <p2 x="1060" y="260"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>
