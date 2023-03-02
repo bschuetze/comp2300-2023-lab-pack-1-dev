@@ -405,7 +405,7 @@ loop(i, 200)
     let b = random(1 &lt;&lt; 16);
 
     0b000 (a) (b) (((~(a ^ b) &amp; (a ^ (a + b))) &gt;&gt; 15) &amp; 0b1)
-    0b001 (a) (b) (((~(a ^ -b) &amp; (a ^ (a - b))) &gt;&gt; 15) &amp; 0b1)
+    0b001 (a) (b) (((~(a ^ ~b) &amp; (a ^ (a - b))) &gt;&gt; 15) &amp; 0b1)
 end loop
 
 # AND, OR, XOR, and their N versions never set overflow
